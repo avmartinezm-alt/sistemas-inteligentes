@@ -1,11 +1,12 @@
-*{
+* {
     padding: 3px;
 }
 
 .ruta-container {
     padding: 10px;
     min-height: 100vh;
-    h2{
+
+    h2 {
         margin-bottom: 20px;
         margin-top: 1px;
     }
@@ -28,11 +29,38 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, .1);
 }
 
-.boton-ruta{
+.boton-ruta {
     margin-top: 20px;
     padding: 15px;
 }
 
 .ruta-activa {
-  background-color: rgb(255, 229, 174);
+    background-color: rgb(255, 229, 174);
+}
+
+.contenedor-busqueda {
+    position: relative;
+    width: 100%;
+}
+
+.sugerencia{
+    background: white;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.sugerencia:hover{
+    background: #f5f5f5;
+}
+
+.lista-sugerencias{
+    position: absolute;
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    z-index: 9999;
+    max-height: 250px;
+    overflow-y: auto;
 }
