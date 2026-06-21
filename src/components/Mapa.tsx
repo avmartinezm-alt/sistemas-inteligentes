@@ -6,9 +6,12 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
+import { location, flag, bicycle } from "ionicons/icons";
+import { IonIcon } from "@ionic/react";
+
 import { Geolocation } from "@capacitor/geolocation";
 
-import { Polyline } from "react-leaflet";
+import { Polyline, useMap } from "react-leaflet";
 
 import {
     MapContainer,
@@ -37,10 +40,15 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
 
     const iconoOrigen = L.icon({
         iconUrl: "/src/assets/ciclista_icono 512x512.png",
-        iconSize: [40, 40]
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     });
 
-    
+    const iconoDestino = L.icon({
+        iconUrl: "/src/assets/iconodestino 512x512.png",
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
+    });
 
     const [posicion, setposicion] = useState<[number, number] | null>(null);
 
@@ -48,17 +56,47 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
         try {
             const coordenadas = await Geolocation.getCurrentPosition();
 
-            const latitud = coordenadas.coords.latitude;
-            const longitud = coordenadas.coords.longitude;
-
-            setposicion([latitud, longitud]);
+            setposicion([
+                coordenadas.coords.latitude,
+                coordenadas.coords.longitude
+            ]);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     };
 
+    const iniciarseguimiento = async () => {
+        try {
+            await Geolocation.watchPosition(
+                {
+                    enableHighAccuracy: true
+                },
+                (posicion) => {
+                    if (!posicion) return;
+
+                    setposicion([
+                        posicion.coords.latitude,
+                        posicion.coords.longitude
+                    ]);
+                }
+            );
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const SeguirMapa = ({ posicion }: { posicion: [number, number] }) => {
+        const map = useMap();
+        useEffect(() => {
+            map.setView(posicion, map.getZoom());
+        }, [posicion, map]);
+
+        return null;
+    }
+
     useEffect(() => {
         obtenerubicacion();
+        iniciarseguimiento();
     }, []);
 
     if (!posicion) {
@@ -70,7 +108,7 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
             center={posicion}
             zoom={15}
             className="mapa"
-        >
+        > <SeguirMapa posicion={posicion} />
             <TileLayer
                 attribution="&copy; OpenStreetMap"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -83,22 +121,22 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
             </Marker>
 
             {ruta && ruta.length > 0 && (
-            <>
-                <Ajustarmapa ruta = {ruta}/>
+                <>
+                    <Ajustarmapa ruta={ruta} />
 
-                <Marker position={ruta[0]}>
-                    <Popup>Origen</Popup>
-                </Marker>
+                    <Marker position={ruta[0]} icon={iconoOrigen}>
+                        <Popup>Origen</Popup>
+                    </Marker>
 
-                <Marker position={ruta[ruta.length - 1]}>
-                    <Popup>Destino</Popup>
-                </Marker>
+                    <Marker position={ruta[ruta.length - 1]} icon={iconoDestino}>
+                        <Popup>Destino</Popup>
+                    </Marker>
 
-                <Polyline
-                    positions={ruta}
-                    pathOptions={{ color: "orange", weight: 4 }}
-                />
-            </>)}
+                    <Polyline
+                        positions={ruta}
+                        pathOptions={{ color: "orange", weight: 4 }}
+                    />
+                </>)}
 
         </MapContainer>
     );

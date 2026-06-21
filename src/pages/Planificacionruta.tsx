@@ -6,7 +6,8 @@ import {
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
-    IonButton
+    IonButton,
+    IonIcon
 } from "@ionic/react";
 
 import { useState } from "react";
@@ -19,7 +20,6 @@ import Mapa from "../components/Mapa";
 import { obtenerRuta } from "../services/rutas";
 
 import { buscarLugar } from "../services/codificar_ruta";
-import { time } from "ionicons/icons";
 
 const Planificacionruta: React.FC = () => {
 
@@ -41,6 +41,8 @@ const Planificacionruta: React.FC = () => {
     const [mostrarDestino, setMostrarDestino] = useState(false);
 
     const [timeoutBusqueda, setTimeoutBusqueda] = useState<ReturnType<typeof setTimeout> | null>(null);
+
+    const [navegando, setNavegando] = useState(false);
 
     const probarRuta = async () => {
         try {
@@ -134,143 +136,167 @@ const Planificacionruta: React.FC = () => {
                 <Header />
 
                 <div className="ruta-container">
-                    <h2>Planificación de Ruta</h2>
+                    <h2 >👋Hola, Selecciona una ruta para comenzar</h2>
 
-                    <div className="contenedor-busqueda">
+                    {!navegando && (
+                        <div className="contenedor-busqueda">
 
-                        <IonInput
-                            className="input-ruta"
-                            value={origen}
-                            onIonFocus={() => {setMostrarOrigen(true); }}
-                            onIonInput={async (e) => {
-                                const valor = e.detail.value ?? "";
-                                setorigen(valor);
-                                if (origenSeleccionado && valor !== origenSeleccionado.display_name){
-                                    setOrigenSeleccionado(null);
-                                }
+                            <IonInput
+                                className="input-ruta"
+                                value={origen}
+                                onIonFocus={() => { setMostrarOrigen(true); }}
+                                onIonInput={async (e) => {
+                                    const valor = e.detail.value ?? "";
+                                    setorigen(valor);
+                                    if (origenSeleccionado && valor !== origenSeleccionado.display_name) {
+                                        setOrigenSeleccionado(null);
+                                    }
 
-                                if(timeoutBusqueda){
-                                    clearTimeout(timeoutBusqueda);
-                                }
+                                    if (timeoutBusqueda) {
+                                        clearTimeout(timeoutBusqueda);
+                                    }
 
-                                const nuevoTimeout = setTimeout(async() => {
-                                    await buscarSugerencias(valor);
-                                }, 500);
+                                    const nuevoTimeout = setTimeout(async () => {
+                                        await buscarSugerencias(valor);
+                                    }, 500);
 
-                                setTimeoutBusqueda(nuevoTimeout);
-                            }}
+                                    setTimeoutBusqueda(nuevoTimeout);
+                                }}
 
-                            onIonBlur={() => {
-                                setTimeout(() => {
-                                    setsugerenciasOrigen([]);
-                                }, 200);
-                            }}
+                                onIonBlur={() => {
+                                    setTimeout(() => {
+                                        setsugerenciasOrigen([]);
+                                    }, 200);
+                                }}
 
-                            placeholder="Origen"
-                        />
+                                placeholder="Origen"
+                            />
 
-                        {mostrarOrigen && sugerenciasOrigen.length > 0 && (
-                            <div className="lista-sugerencias">
-                                {sugerenciasOrigen.map((lugar, index) => (
-                                    <div
-                                        key={index}
-                                        className="sugerencia"
-                                        onMouseDown={() => {
-                                            console.log("SELECCIONANDO ORIGEN");
-                                            console.log("Origen seleccionado:", lugar);
-                                            setorigen(lugar.display_name);
-                                            setOrigenSeleccionado(lugar);
-                                            setsugerenciasOrigen([]);
-                                            setMostrarOrigen(false);
-                                        }}
-                                    >
-                                        • {lugar.display_name}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                            {mostrarOrigen && sugerenciasOrigen.length > 0 && (
+                                <div className="lista-sugerencias">
+                                    {sugerenciasOrigen.map((lugar, index) => (
+                                        <div
+                                            key={index}
+                                            className="sugerencia"
+                                            onMouseDown={() => {
+                                                console.log("SELECCIONANDO ORIGEN");
+                                                console.log("Origen seleccionado:", lugar);
+                                                setorigen(lugar.display_name);
+                                                setOrigenSeleccionado(lugar);
+                                                setsugerenciasOrigen([]);
+                                                setMostrarOrigen(false);
+                                            }}
+                                        >
+                                            • {lugar.display_name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
-                        <IonInput
-                            className="input-ruta"
-                            value={destino}
-                            onIonFocus={() => {setMostrarDestino(true); }}
-                            onIonInput={async (e) => {
-                                console.log("LIMPIANDO ORIGEN");
-                                const valor = e.detail.value ?? "";
-                                setdestino(valor);
-                                if (destinoSeleccionado && valor !== destinoSeleccionado.display_name){
-                                    setDestinoSeleccionado(null);
-                                }
+                            <IonInput
+                                className="input-ruta"
+                                value={destino}
+                                onIonFocus={() => { setMostrarDestino(true); }}
+                                onIonInput={async (e) => {
+                                    console.log("LIMPIANDO ORIGEN");
+                                    const valor = e.detail.value ?? "";
+                                    setdestino(valor);
+                                    if (destinoSeleccionado && valor !== destinoSeleccionado.display_name) {
+                                        setDestinoSeleccionado(null);
+                                    }
 
-                                if (timeoutBusqueda){
-                                    clearTimeout(timeoutBusqueda);
-                                }
-                                
-                                const nuevoTimeout = setTimeout(async() => {
-                                    await buscarSugerenciasDestino(valor);
-                                }, 500);
+                                    if (timeoutBusqueda) {
+                                        clearTimeout(timeoutBusqueda);
+                                    }
 
-                                setTimeoutBusqueda(nuevoTimeout);
-                            }}
+                                    const nuevoTimeout = setTimeout(async () => {
+                                        await buscarSugerenciasDestino(valor);
+                                    }, 500);
 
-                            onIonBlur={() => {
-                                setTimeout(() => {
-                                    setsugerenciasDestino([]);
-                                }, 200);
-                            }}
+                                    setTimeoutBusqueda(nuevoTimeout);
+                                }}
 
-                            placeholder="Destino"
-                        />
+                                onIonBlur={() => {
+                                    setTimeout(() => {
+                                        setsugerenciasDestino([]);
+                                    }, 200);
+                                }}
 
-                        {mostrarDestino && sugerenciasDestino.length > 0 && (
-                            <div className="lista-sugerencias">
-                                {sugerenciasDestino.map((lugar, index) => (
-                                    <div
-                                        key={index}
-                                        className="sugerencia"
-                                        onMouseDown={() => {
-                                            console.log("Destino seleccionado:", lugar);
-                                            setdestino(lugar.display_name);
-                                            setDestinoSeleccionado(lugar);
-                                            setsugerenciasDestino([]);
-                                            setMostrarDestino(false);
-                                        }}
-                                    >
-                                        • {lugar.display_name}
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                placeholder="Destino"
+                            />
 
-                    </div>
+                            {mostrarDestino && sugerenciasDestino.length > 0 && (
+                                <div className="lista-sugerencias">
+                                    {sugerenciasDestino.map((lugar, index) => (
+                                        <div
+                                            key={index}
+                                            className="sugerencia"
+                                            onMouseDown={() => {
+                                                console.log("Destino seleccionado:", lugar);
+                                                setdestino(lugar.display_name);
+                                                setDestinoSeleccionado(lugar);
+                                                setsugerenciasDestino([]);
+                                                setMostrarDestino(false);
+                                            }}
+                                        >
+                                            • {lugar.display_name}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
-                    <IonButton className="boton-ruta" expand="block" onClick={probarRuta} >Buscar ruta</IonButton>
+                        </div>
+                    )}
 
-                    <div className="mapa-falso">
+                    {!navegando && (
+                        <IonButton className="boton-ruta" expand="block" onClick={probarRuta} >
+                            Buscar ruta
+                        </IonButton>
+                    )}
+
+                    <div className={navegando ? "mapa-falso mapa-navegacion" : "mapa-falso"}>
                         <Mapa key={rutareal.length} ruta={rutareal} />
                     </div>
 
-                    {distancia > 0 && (
-                        <IonCard>
-                            <IonCardHeader>
-                                <IonCardTitle>
-                                    Ruta encontrada
-                                </IonCardTitle>
-                            </IonCardHeader>
+                    {navegando && (
+                        <div className="panel-navegacion">
+                            <h3>🚴 Navegación activa</h3>
+                            <p>
+                                ↔ Distancia: {(distancia / 1000).toFixed(2)} km
+                            </p>
 
-                            <IonCardContent>
-                                Distancia: {(distancia / 1000).toFixed(2)} km
-                                <br />
-                                Tiempo estimado: {(duracion / 60).toFixed(0)} min
-                                <br />
-                            </IonCardContent>
-                        </IonCard>
+                            <p>
+                                ⏱️ Tiempo estimado: {(duracion / 60).toFixed(0)} min
+                            </p>
+
+                            <IonButton
+                                expand="block"
+                                color="danger"
+                                onClick={() => {
+                                    setNavegando(false);
+                                    setrutareal([]);
+                                    setdistancia(0);
+                                    setduracion(0);
+                                }
+                                }
+                            >
+                                Finalizar recorrido
+                            </IonButton>
+
+                        </div>
+
+                    )}
+
+                    {distancia > 0 && !navegando && (
+                        <IonButton expand="block" color="light" onClick={() => setNavegando(true)}>
+                            Iniciar recorrido
+                        </IonButton>
                     )}
 
                 </div>
 
             </IonContent>
-        </IonPage>
+        </IonPage >
     );
 };
 
