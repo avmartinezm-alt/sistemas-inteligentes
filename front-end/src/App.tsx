@@ -43,7 +43,7 @@ import '@ionic/react/css/palettes/dark.system.css';
 import './theme/variables.css';
 import Inicio from './pages/Inicio';
 import Planificacionruta from './pages/Planificacionruta';
-import Usuario from "./pages/usuario";
+import Usuario from "./pages/Usuario";
 
 setupIonicReact();
 
