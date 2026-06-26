@@ -1,6 +1,7 @@
 import {
     IonPage,
     IonContent,
+    IonInput,
     IonButton
 } from "@ionic/react";
 
@@ -9,6 +10,7 @@ import Header from "../components/Header";
 import "./Inicio.css";
 import { useHistory } from "react-router-dom";
 import { useState } from "react";
+
 
 const Inicio: React.FC = () => {
     const history = useHistory();
@@ -24,6 +26,10 @@ const Inicio: React.FC = () => {
                 <div className="dashboard-container">
 
                     <h2>¡Hola, USUARIO!</h2>
+
+                    <IonInput className="buscador" placeholder="🔎¿A donde quieres ir?" onClick={() => history.push("/Planificacionruta")}>
+                        
+                    </IonInput>
 
                     <div className="card">
                         <h3>Análisis de Ruta en Tiempo Real</h3>

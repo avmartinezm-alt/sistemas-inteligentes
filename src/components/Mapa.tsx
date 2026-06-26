@@ -34,9 +34,10 @@ L.Icon.Default.mergeOptions({
 
 interface MapaProps {
     ruta?: [number, number][];
+    navegando?: boolean;
 }
 
-const Mapa: React.FC<MapaProps> = ({ ruta }) => {
+const Mapa: React.FC<MapaProps> = ({ ruta, navegando }) => {
 
     const iconoOrigen = L.icon({
         iconUrl: "/src/assets/ciclista_icono 512x512.png",
@@ -88,8 +89,8 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
     const SeguirMapa = ({ posicion }: { posicion: [number, number] }) => {
         const map = useMap();
         useEffect(() => {
-            map.setView(posicion, map.getZoom());
-        }, [posicion, map]);
+            map.setView(posicion, 25, { animate: true });
+        }, [posicion]);
 
         return null;
     }
@@ -106,7 +107,7 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
     return (
         <MapContainer
             center={posicion}
-            zoom={15}
+            zoom={1}
             className="mapa"
         > <SeguirMapa posicion={posicion} />
             <TileLayer
@@ -122,7 +123,7 @@ const Mapa: React.FC<MapaProps> = ({ ruta }) => {
 
             {ruta && ruta.length > 0 && (
                 <>
-                    <Ajustarmapa ruta={ruta} />
+                    {!navegando && (<Ajustarmapa ruta={ruta} />)}
 
                     <Marker position={ruta[0]} icon={iconoOrigen}>
                         <Popup>Origen</Popup>

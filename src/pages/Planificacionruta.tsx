@@ -10,6 +10,9 @@ import {
     IonIcon
 } from "@ionic/react";
 
+import { Geolocation } from "@capacitor/geolocation";
+import { useEffect } from "react";
+
 import { useState } from "react";
 import "./Planificacionruta.css";
 
@@ -23,6 +26,8 @@ import { buscarLugar } from "../services/codificar_ruta";
 
 const Planificacionruta: React.FC = () => {
 
+    const [ubicacionActual, setubicacionActual] = useState<any>(null);
+
     const [origen, setorigen] = useState("");
     const [destino, setdestino] = useState("");
 
@@ -32,6 +37,7 @@ const Planificacionruta: React.FC = () => {
     const [duracion, setduracion] = useState(0);
 
     const [sugerenciasOrigen, setsugerenciasOrigen] = useState<any[]>([]);
+
     const [sugerenciasDestino, setsugerenciasDestino] = useState<any[]>([]);
 
     const [origenSeleccionado, setOrigenSeleccionado] = useState<any>(null);
@@ -49,8 +55,8 @@ const Planificacionruta: React.FC = () => {
             console.log("ORIGEN:", origenSeleccionado);
             console.log("DESTINO:", destinoSeleccionado);
 
-            if (!origenSeleccionado || !destinoSeleccionado) {
-                alert("Seleccione origen y destino");
+            if (!ubicacionActual || !destinoSeleccionado) {
+                alert("Esperando a que se obtenga tu ubicacion actual");
                 return;
             }
 
@@ -62,14 +68,19 @@ const Planificacionruta: React.FC = () => {
             console.log(origenSeleccionado);
 
             const origenCoord: [number, number] = [
-                Number(origenSeleccionado.lat),
-                Number(origenSeleccionado.lon)
+                Number(ubicacionActual.lat),
+                Number(ubicacionActual.lon)
             ];
 
             const destinoCoord: [number, number] = [
                 Number(destinoSeleccionado.lat),
                 Number(destinoSeleccionado.lon)
             ];
+
+            console.log("ORIGEN GPS:", origenCoord);
+            console.log("DESTINO:", destinoCoord);
+            console.log(typeof origenCoord);
+            console.log(typeof destinoCoord);
 
             const datosruta = await obtenerRuta(
                 origenCoord, destinoCoord
@@ -129,6 +140,24 @@ const Planificacionruta: React.FC = () => {
         setsugerenciasDestino(datos);
     };
 
+    const obtenerbicacionActual = async () => {
+        try {
+            const posicion = await Geolocation.getCurrentPosition();
+
+            setubicacionActual({
+                lat: posicion.coords.latitude,
+                lon: posicion.coords.longitude
+            });
+            console.log("Ubicacion obtenida");
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    useEffect(() => {
+        obtenerbicacionActual();
+    }, []);
+
     return (
         <IonPage>
 
@@ -140,7 +169,7 @@ const Planificacionruta: React.FC = () => {
 
                     {!navegando && (
                         <div className="contenedor-busqueda">
-
+                            {/*
                             <IonInput
                                 className="input-ruta"
                                 value={origen}
@@ -170,8 +199,14 @@ const Planificacionruta: React.FC = () => {
                                 }}
 
                                 placeholder="Origen"
-                            />
+                            />*/}
 
+                            <IonCard>
+                                <IonCardContent class="ion-text-left">
+                                    📍Origen
+                                </IonCardContent>
+                            </IonCard>
+                            {/*
                             {mostrarOrigen && sugerenciasOrigen.length > 0 && (
                                 <div className="lista-sugerencias">
                                     {sugerenciasOrigen.map((lugar, index) => (
@@ -192,38 +227,45 @@ const Planificacionruta: React.FC = () => {
                                     ))}
                                 </div>
                             )}
+                            */}
+                            
+                            <IonCard>
+                                <IonCardContent class="ion-text-left">
+                                    <IonInput 
+                                        className="input-ruta"
+                                        value={destino}
+                                        onIonFocus={() => { setMostrarDestino(true); }}
+                                        onIonInput={async (e) => {
+                                            console.log("LIMPIANDO ORIGEN");
+                                            const valor = e.detail.value ?? "";
+                                            setdestino(valor);
+                                            if (destinoSeleccionado && valor !== destinoSeleccionado.display_name) {
+                                                setDestinoSeleccionado(null);
+                                            }
 
-                            <IonInput
-                                className="input-ruta"
-                                value={destino}
-                                onIonFocus={() => { setMostrarDestino(true); }}
-                                onIonInput={async (e) => {
-                                    console.log("LIMPIANDO ORIGEN");
-                                    const valor = e.detail.value ?? "";
-                                    setdestino(valor);
-                                    if (destinoSeleccionado && valor !== destinoSeleccionado.display_name) {
-                                        setDestinoSeleccionado(null);
-                                    }
+                                            if (timeoutBusqueda) {
+                                                clearTimeout(timeoutBusqueda);
+                                            }
 
-                                    if (timeoutBusqueda) {
-                                        clearTimeout(timeoutBusqueda);
-                                    }
+                                            const nuevoTimeout = setTimeout(async () => {
+                                                await buscarSugerenciasDestino(valor);
+                                            }, 500);
 
-                                    const nuevoTimeout = setTimeout(async () => {
-                                        await buscarSugerenciasDestino(valor);
-                                    }, 500);
+                                            setTimeoutBusqueda(nuevoTimeout);
+                                        }}
 
-                                    setTimeoutBusqueda(nuevoTimeout);
-                                }}
+                                        onIonBlur={() => {
+                                            setTimeout(() => {
+                                                setsugerenciasDestino([]);
+                                            }, 200);
+                                        }}
 
-                                onIonBlur={() => {
-                                    setTimeout(() => {
-                                        setsugerenciasDestino([]);
-                                    }, 200);
-                                }}
+                                        placeholder="🔎¿A donde quieres ir?"
+                                    />
+                                </IonCardContent>
+                            </IonCard>
 
-                                placeholder="Destino"
-                            />
+
 
                             {mostrarDestino && sugerenciasDestino.length > 0 && (
                                 <div className="lista-sugerencias">
@@ -255,7 +297,7 @@ const Planificacionruta: React.FC = () => {
                     )}
 
                     <div className={navegando ? "mapa-falso mapa-navegacion" : "mapa-falso"}>
-                        <Mapa key={rutareal.length} ruta={rutareal} />
+                        <Mapa key={rutareal.length} ruta={rutareal} navegando={navegando} />
                     </div>
 
                     {navegando && (
