@@ -11,21 +11,20 @@ import {
     IonButton
 } from "@ionic/react";
 
-import { useHistory } from 'react-router-dom';
-
 import { useState } from "react";
 
 import Header from "../components/Header";
 
+import { useHistory } from "react-router-dom"; 
+
+
 import "./Usuario.css";
 
 // Dentro de tu componente:
-const history = useHistory();
-
-// Para navegar:
-history.push('/ruta');
 
 const Usuario: React.FC = () => {
+
+    const history = useHistory();
 
     const [alertas, setAlertas] = useState(true);
     const [horarioNocturno, setHorarioNocturno] = useState(false);
