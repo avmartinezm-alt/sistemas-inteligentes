@@ -40,13 +40,13 @@ interface MapaProps {
 const Mapa: React.FC<MapaProps> = ({ ruta, navegando }) => {
 
     const iconoOrigen = L.icon({
-        iconUrl: "/src/assets/ciclista_icono 512x512.png",
+        iconUrl: "/assets/ciclista_icono 512x512.png",
         iconSize: [40, 40],
         iconAnchor: [20, 20]
     });
 
     const iconoDestino = L.icon({
-        iconUrl: "/src/assets/iconodestino 512x512.png",
+        iconUrl: "/assets/iconodestino 512x512.png",
         iconSize: [40, 40],
         iconAnchor: [20, 20]
     });
