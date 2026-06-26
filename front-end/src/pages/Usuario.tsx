@@ -11,11 +11,19 @@ import {
     IonButton
 } from "@ionic/react";
 
+import { useHistory } from 'react-router-dom';
+
 import { useState } from "react";
 
 import Header from "../components/Header";
 
 import "./Usuario.css";
+
+// Dentro de tu componente:
+const history = useHistory();
+
+// Para navegar:
+history.push('/ruta');
 
 const Usuario: React.FC = () => {
 
