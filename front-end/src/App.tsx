@@ -53,7 +53,7 @@ const App: React.FC = () => (
       <IonTabs>
 
         <IonRouterOutlet>
-          <Route exact path="/">
+          <Route exact path="">
             <Redirect to = "/Inicio"/>
           </Route>
 
