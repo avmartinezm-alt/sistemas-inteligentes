@@ -51,6 +51,7 @@ const Planificacionruta: React.FC = () => {
     const [navegando, setNavegando] = useState(false);
 
     const probarRuta = async () => {
+        const inicio = performance.now();
         try {
             console.log("ORIGEN:", origenSeleccionado);
             console.log("DESTINO:", destinoSeleccionado);
@@ -113,6 +114,11 @@ const Planificacionruta: React.FC = () => {
             setdistancia(resumen.distance);
             setduracion(resumen.duration);
             setrutareal(coordenadas);
+
+            const fin = performance.now();
+
+            console.log(
+            `Tiempo de procesamiento: ${((fin - inicio) / 1000).toFixed(2)} segundos`);
 
         } catch (e) {
             console.error(e);
